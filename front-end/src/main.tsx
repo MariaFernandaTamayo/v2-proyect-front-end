@@ -4,9 +4,12 @@ import './index.css'
 import Login from './routes/Login.tsx'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Register from './routes/Register.tsx'
-import Dashboard from './routes/Dashboard.tsx'
+import Home from './routes/Home.tsx'
 import ProtectedRoute from './routes/ProtectedRoute.tsx'
 import { AuthProvider } from './auth/AuthProvider.tsx'
+import Search from './routes/Search.tsx';
+import Profile from './routes/Profile.tsx';
+
 const router = createBrowserRouter([
   {
     path:"/", element:<Login />,
@@ -18,8 +21,16 @@ const router = createBrowserRouter([
     path:"/", element:<ProtectedRoute />,
     children:[
       {
-        path:"/dashboard",
-        element: <Dashboard />
+        path:"/home",
+        element: <Home/>
+      },
+      {
+        path:"/search",
+        element: <Search/>
+      },
+      {
+        path:"/profile",
+        element: <Profile/>
       }
     ]
   }
@@ -28,6 +39,7 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <AuthProvider>
+    
       <RouterProvider router={router} />
     </AuthProvider>
   </React.StrictMode>,
