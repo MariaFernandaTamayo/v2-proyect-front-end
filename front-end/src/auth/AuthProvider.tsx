@@ -13,3 +13,4 @@ export function AuthProvider({children}:AuthProviderProps){
         {children}
     </AuthContext.Provider>
 }
+export const useAuth =() => useContext(AuthContext);
