@@ -23,7 +23,7 @@ export default function Login(){
                 type="submit" 
                 className="w-full bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-600 focus:outline-none focus:bg-purple-600"
             >
-                Register
+                Login
             </button>
             <p className="flex gap-x-2 justify-between">Do not you have an account yet?<Link to="/register" className="text-sky-500">Sign Up</Link></p>
             </form>
