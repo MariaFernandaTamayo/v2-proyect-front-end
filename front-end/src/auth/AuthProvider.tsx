@@ -1,4 +1,5 @@
 import { useContext, createContext, useState} from "react";
+import type {AuthResponse}  from "../types/types";
 
 interface AuthProviderProps{
     children: React.ReactNode;
@@ -6,10 +7,27 @@ interface AuthProviderProps{
 }
 const AuthContext= createContext({
     isAuthenticated:false,
-})
+    getAccessToken: () => {},
+    saveUser:(userData: AuthResponse) => {},
+    
+});
 export function AuthProvider({children}:AuthProviderProps){
-    const[isAuthenticated] = useState(false);
-    return<AuthContext.Provider value={{isAuthenticated}}>
+    const[isAuthenticated,setIsAuthenticated] = useState(false);
+    const [accessToken, setAccessToken] = useState<String>("");
+    const [refreshToken, setRefreshToken] = useState<String>("");
+
+    function getAccessToken(){
+        return accessToken;
+    }
+    function saveUser(userData:AuthResponse){
+        setAccessToken(userData.body.accessToken);
+        setRefreshToken(userData.body.refreshToken);
+        localStorage.setItem("token",JSON.stringify(userData.body.refreshToken));
+        setIsAuthenticated(true);
+    }
+
+
+    return<AuthContext.Provider value={{isAuthenticated, getAccessToken, saveUser}}>
         {children}
     </AuthContext.Provider>
 }

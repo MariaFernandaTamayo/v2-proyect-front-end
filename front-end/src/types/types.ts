@@ -1,7 +1,7 @@
 export interface AuthResponse{
     body:{
         user: User;
-        accesToken: string;
+        accessToken: string;
         refreshToken: string;
 
     };
