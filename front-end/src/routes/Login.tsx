@@ -1,17 +1,58 @@
-import { Link, Navigate } from "react-router-dom"
+import { Link, Navigate,useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { useAuth } from "../auth/AuthProvider";
+import { API_URL } from "../auth/constants";
+import { AuthResponseError } from "../types/types";
+
 export default function Login(){
     const[username,setUsername]=useState("");
     const[password,setPassword]=useState("");
+    const [errorResponse, setErrorResponse] = useState("");
+    const goTo=useNavigate();
     const auth=useAuth();
+
+    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        // Validación de campos
+        if (!username || !password) {
+            setErrorResponse("Fields are required.");
+            return;
+        }
+        try {
+            const response = await fetch(`${API_URL}/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    username,
+                    password,
+                })
+            });
+            if (response.ok) {
+                console.log("User Login successfully");
+                setErrorResponse(""); 
+                goTo("/");
+            } else {
+                console.log("Something went wrong");
+                const json = (await response.json()) as AuthResponseError;
+                setErrorResponse(json.body.error);
+                return;
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+
     if(auth.isAuthenticated){
         return <Navigate to="/dashboard" />
     }
     return (
         <div className="flex justify-center items-center h-screen">
-            <form className="w-full max-w-sm bg-zinc-700 rounded-md shadow-md p-6">
+            <form className="w-full max-w-sm bg-zinc-700 rounded-md shadow-md p-6" onSubmit={handleSubmit}>
                 <h1>Login</h1>
+                {!! errorResponse && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">{errorResponse}</div>}
                 
                 <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full bg-zinc-700 text-white px-4 py-2 my-2 rounded-md border border-purple-500 focus:outline-none focus:border-purple-700 mb-2" 
             placeholder="Username"></input>
