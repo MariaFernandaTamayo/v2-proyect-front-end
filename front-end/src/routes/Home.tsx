@@ -102,7 +102,7 @@ export default function Home() {
             </a>
           </li>
           <li>
-            <button onClick={auth.signout} className="hover:text-gray-300">
+            <button onClick={auth.logout} className="hover:text-gray-300">
               Logout
             </button>
           </li>
@@ -138,10 +138,10 @@ export default function Home() {
                   onClick={() => handleDeleteTweet(todo.id)}
                   className="bg-red-600 text-white py-1 px-2 rounded hover:bg-red-700 mr-2"
                 >
-                  Borrar
+                  Delete Tweet
                 </button>
                 <button className="bg-blue-600 text-white py-1 px-2 rounded hover:bg-blue-700">
-                  Editar
+                  Update Tweet
                 </button>
               </div>
             </div>

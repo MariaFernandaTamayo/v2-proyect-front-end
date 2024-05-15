@@ -8,7 +8,7 @@ interface AuthProviderProps {
 const AuthContext = createContext({
   isAuthenticated: false,
   getAccessToken: () => {},
-  saveUser: (userData: AuthResponse) => {},
+  saveUser: (_userData: AuthResponse) => {},
   getRefreshToken: () => {},
   getUser: () => ({} as User | undefined),
   logout: () => {}, // Agregar función logout
@@ -128,6 +128,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Redireccionar a la página de inicio de sesión (cambia "/login" al enlace real)
     window.location.href = "/";
   }
+  
 
   return (
     <AuthContext.Provider
