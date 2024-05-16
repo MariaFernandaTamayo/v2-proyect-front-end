@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
 import { API_URL } from "../auth/constants";
 
@@ -51,9 +52,8 @@ export default function Home() {
       });
 
       if (response.ok) {
-        // Cargar los tweets nuevamente después de agregar uno nuevo
         await loadTodos();
-        setNewTweet(""); // Limpiar el input después de crear el tweet
+        setNewTweet("");
       } else {
         console.error("Error al crear el tweet");
       }
@@ -72,7 +72,6 @@ export default function Home() {
       });
 
       if (response.ok) {
-        // Cargar los tweets nuevamente después de eliminar uno
         await loadTodos();
       } else {
         console.error("Error al eliminar el tweet");
@@ -87,19 +86,19 @@ export default function Home() {
       <nav className="bg-purple-600 p-4">
         <ul className="flex justify-around">
           <li>
-            <a href="/home" className="hover:text-gray-300">
+            <Link to="/home" className="hover:text-gray-300">
               Home
-            </a>
+            </Link>
           </li>
           <li>
-            <a href="/search" className="hover:text-gray-300">
+            <Link to="/search" className="hover:text-gray-300">
               Search
-            </a>
+            </Link>
           </li>
           <li>
-            <a href="/profile" className="hover:text-gray-300">
+            <Link to="/profile" className="hover:text-gray-300">
               Profile
-            </a>
+            </Link>
           </li>
           <li>
             <button onClick={auth.logout} className="hover:text-gray-300">

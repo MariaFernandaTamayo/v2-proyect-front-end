@@ -16,6 +16,7 @@ const AuthContext = createContext({
 export function AuthProvider({ children }: AuthProviderProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [accessToken, setAccessToken] = useState<string>("");
+  const [refreshToken, setRefreshToken] = useState<string>("");
   const [user, setUser] = useState<User>();
 
   useEffect(() => {
@@ -99,11 +100,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
   function getAccessToken() {
     return accessToken;
   }
-  function getRefreshToken(): string | null {
-    const tokenData = localStorage.getItem("token");
-    if (tokenData) {
-      const { token } = JSON.parse(tokenData);
-      return token;
+  function getRefreshToken() {
+    if (!!refreshToken) {
+      return refreshToken;
+    }
+    const token = localStorage.getItem("token");
+    if (token) {
+      const refreshToken  = JSON.parse(token);
+      setRefreshToken(refreshToken);
+      return refreshToken;
     }
     return null;
   }
