@@ -52,7 +52,14 @@ export default function Home() {
       });
 
       if (response.ok) {
+        // Actualizar la lista de tweets con el nuevo tweet
+        const updatedTodos = [...todos, { id: Date.now().toString(), title: newTweet, submit: true }];
+        setTodos(updatedTodos);
+
+        // Cargar los tweets actualizados desde el servidor
         await loadTodos();
+
+        // Limpiar el campo de nuevo tweet
         setNewTweet("");
       } else {
         console.error("Error al crear el tweet");
@@ -110,6 +117,7 @@ export default function Home() {
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">
           Home de {auth.getUser()?.username || ""}
+          {todos.map((todo) => (<div> {todo.title}</div>))}
         </h1>
         <form onSubmit={handleCreateTweet} className="mb-4">
           <textarea
