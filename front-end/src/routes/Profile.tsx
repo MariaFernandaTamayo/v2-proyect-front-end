@@ -66,8 +66,8 @@ export default function Profile() {
         <div className="bg-gray-800 p-6 rounded-lg border border-gray-700 w-full max-w-md relative">
           {profileData ? (
             <div>
-              <p><strong>Nombre:</strong> {profileData.name}</p>
-              <p><strong>Correo electrónico:</strong> {profileData.email}</p>
+              <p><strong>Nombre:</strong> {auth.getUser()?.username || ""} </p>
+              <p><strong>Correo electrónico:</strong> {auth.getUser()?.email || ""}</p>
               {/* Otros datos del perfil */}
             </div>
           ) : (
