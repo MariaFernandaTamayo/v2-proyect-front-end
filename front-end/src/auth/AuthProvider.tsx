@@ -34,11 +34,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
       if (response.ok) {
         const json = (await response.json()) as AccessTokenResponse;
-  
+
         if (json.error) {
           throw new Error(json.error);
         }
-        return json.accessToken;
+        return json.body.accessToken;
       } else {
         throw new Error(response.statusText);
       }
@@ -92,8 +92,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     refreshToken: string
   ) {
     setAccessToken(accessToken);
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", refreshToken); // Guardar el refreshToken en el almacenamiento local
+    localStorage.setItem("token", JSON.stringify(refreshToken));
     setIsAuthenticated(true);
     setUser(userInfo);
   }
@@ -102,10 +101,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return accessToken;
   }
   function getRefreshToken() {
-    const token = localStorage.getItem("refreshToken");
+    if (!!refreshToken) {
+      return refreshToken;
+    }
+    const token = localStorage.getItem("token");
     if (token) {
-      setRefreshToken(token); // Establece el refreshToken en el estado si está presente en el almacenamiento local
-      return token;
+      const refreshToken  = JSON.parse(token);
+      setRefreshToken(refreshToken);
+      return refreshToken;
     }
     return null;
   }
@@ -147,4 +150,5 @@ export function AuthProvider({ children }: AuthProviderProps) {
     </AuthContext.Provider>
   );
 }
-export const useAuth = () => useContext(AuthContext);
+
+export const useAuth =() => useContext(AuthContext);
