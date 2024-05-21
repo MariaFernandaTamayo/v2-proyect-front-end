@@ -1,4 +1,4 @@
-import { AccesTokenResponse } from "../types/types";
+import { AccessTokenResponse } from "../types/types";
 import { API_URL } from "./constants";
 
 export default async function requestNewAccessToken(refreshToken: string) {
@@ -11,7 +11,7 @@ export default async function requestNewAccessToken(refreshToken: string) {
   });
 
   if (response.ok) {
-    const json = (await response.json()) as AccesTokenResponse;
+    const json = (await response.json()) as AccessTokenResponse;
 
     if (json.error) {
       throw new Error(json.error);
