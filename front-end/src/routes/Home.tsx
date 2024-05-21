@@ -4,14 +4,16 @@ import { useAuth } from "../auth/AuthProvider";
 import { API_URL } from "../auth/constants";
 
 interface Todo {
-  id: string;
+  _id: string;
   title: string;
   submit: boolean;
 }
 
 export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [newTweet, setNewTweet] = useState("");
+  const [newTodo, setNewTodo] = useState("");
+  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+  const [editTitle, setEditTitle] = useState("");
   const auth = useAuth();
 
   useEffect(() => {
@@ -22,7 +24,7 @@ export default function Home() {
     try {
       const response = await fetch(`${API_URL}/todos`, {
         headers: {
-          "Content-type": "application/json",
+          "Content-Type": "application/json",
           Authorization: `Bearer ${auth.getAccessToken()}`,
         },
       });
@@ -38,38 +40,34 @@ export default function Home() {
     }
   }
 
-  async function handleCreateTweet(event: React.FormEvent) {
+  async function handleCreateTodo(event: React.FormEvent) {
     event.preventDefault();
 
-    try {
-      const response = await fetch(`${API_URL}/todos`, {
-        method: "POST",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${auth.getAccessToken()}`,
-        },
-        body: JSON.stringify({ title: newTweet, submit: true }),
-      });
+    if (newTodo.trim().length > 3) {
+      try {
+        const response = await fetch(`${API_URL}/todos`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${auth.getAccessToken()}`,
+          },
+          body: JSON.stringify({ title: newTodo, submit: true }),
+        });
 
-      if (response.ok) {
-        // Actualizar la lista de tweets con el nuevo tweet
-        const updatedTodos = [...todos, { id: Date.now().toString(), title: newTweet, submit: true }];
-        setTodos(updatedTodos);
-
-        // Cargar los tweets actualizados desde el servidor
-        await loadTodos();
-
-        // Limpiar el campo de nuevo tweet
-        setNewTweet("");
-      } else {
-        console.error("Error al crear el tweet");
+        if (response.ok) {
+          const createdTodo = await response.json();
+          setTodos([...todos, createdTodo]);
+          setNewTodo("");
+        } else {
+          console.error("Error al crear el todo");
+        }
+      } catch (error) {
+        console.error("Error al crear el todo", error);
       }
-    } catch (error) {
-      console.error("Error al crear el tweet", error);
     }
   }
 
-  async function handleDeleteTweet(id: string) {
+  async function handleDeleteTodo(id: string) {
     try {
       const response = await fetch(`${API_URL}/todos/${id}`, {
         method: "DELETE",
@@ -79,13 +77,49 @@ export default function Home() {
       });
 
       if (response.ok) {
-        await loadTodos();
+        setTodos(todos.filter((todo) => todo._id !== id));
       } else {
-        console.error("Error al eliminar el tweet");
+        console.error("Error al eliminar el todo");
       }
     } catch (error) {
-      console.error("Error al eliminar el tweet", error);
+      console.error("Error al eliminar el todo", error);
     }
+  }
+
+  async function handleUpdateTodo() {
+    if (editingTodo) {
+      try {
+        const response = await fetch(`${API_URL}/todos/${editingTodo._id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${auth.getAccessToken()}`,
+          },
+          body: JSON.stringify({ title: editTitle, submit: editingTodo.submit }),
+        });
+
+        if (response.ok) {
+          const updatedTodo = await response.json();
+          setTodos(todos.map((todo) => (todo._id === updatedTodo._id ? updatedTodo : todo)));
+          setEditingTodo(null);
+          setEditTitle("");
+        } else {
+          console.error("Error al actualizar el todo");
+        }
+      } catch (error) {
+        console.error("Error al actualizar el todo", error);
+      }
+    }
+  }
+
+  function openEditModal(todo: Todo) {
+    setEditingTodo(todo);
+    setEditTitle(todo.title);
+  }
+
+  function closeEditModal() {
+    setEditingTodo(null);
+    setEditTitle("");
   }
 
   return (
@@ -117,43 +151,73 @@ export default function Home() {
       <div className="container mx-auto p-4">
         <h1 className="text-2xl font-bold mb-4">
           Home de {auth.getUser()?.username || ""}
-          {todos.map((todo) => (<div> {todo.title}</div>))}
         </h1>
-        <form onSubmit={handleCreateTweet} className="mb-4">
+        <form onSubmit={handleCreateTodo} className="mb-4">
           <textarea
             className="w-full p-2 border border-gray-700 bg-gray-800 text-white rounded-lg mb-2"
             rows={4}
-            value={newTweet}
-            onChange={(e) => setNewTweet(e.target.value)}
-            placeholder="What are you thinking?"
+            value={newTodo}
+            onChange={(e) => setNewTodo(e.target.value)}
+            placeholder="New task to do..."
             required
           />
           <button
             type="submit"
             className="bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700"
           >
-            Post Tweet
+            Add Todo
           </button>
         </form>
         <div className="mb-4">
-          <h2 className="text-xl font-semibold mb-2">Mis Tweets</h2>
+          <h2 className="text-xl font-semibold mb-2">My Todos</h2>
           {todos.map((todo) => (
-            <div key={todo.id} className="p-2 border-b border-gray-700">
+            <div key={todo._id} className="p-2 border-b border-gray-700">
               <div>{todo.title}</div>
               <div>
                 <button
-                  onClick={() => handleDeleteTweet(todo.id)}
+                  onClick={() => handleDeleteTodo(todo._id)}
                   className="bg-red-600 text-white py-1 px-2 rounded hover:bg-red-700 mr-2"
                 >
-                  Delete Tweet
+                  Delete
                 </button>
-                <button className="bg-blue-600 text-white py-1 px-2 rounded hover:bg-blue-700">
-                  Update Tweet
+                <button
+                  onClick={() => openEditModal(todo)}
+                  className="bg-blue-600 text-white py-1 px-2 rounded hover:bg-blue-700"
+                >
+                  Update
                 </button>
               </div>
             </div>
           ))}
         </div>
+        {editingTodo && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-gray-800 p-4 rounded">
+              <h2 className="text-xl font-semibold mb-4">Edit Todo</h2>
+              <textarea
+                className="w-full p-2 border border-gray-700 bg-gray-800 text-white rounded-lg mb-4"
+                rows={4}
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                placeholder="Edit task..."
+              />
+              <div className="flex justify-end">
+                <button
+                  onClick={closeEditModal}
+                  className="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 mr-2"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleUpdateTodo}
+                  className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+                >
+                  Update
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

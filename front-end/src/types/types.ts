@@ -1,26 +1,36 @@
-export interface AuthResponse{
-    body:{
+export interface AuthResponse {
+    body: {
         user: User;
         accessToken: string;
         refreshToken: string;
-
     };
-
 }
-export interface AuthResponseError{
+
+export interface AuthResponseError {
     body: {
-        error:string;
+        error: string;
     };
 }
-export interface User{
+
+export interface User {
     _id: string;
     email: string;
     username: string;
 }
-export interface AccesTokenResponse{
+
+export interface AccessTokenResponse {
     statusCode: number;
-    body:{
+    accessToken: string;
+    body: {
         accessToken: string;
-    },
-    error?:string;
+    };
+    error?: string;
+}
+
+export interface Tweet {
+    _id: string;
+    title: string;
+    content: string; // Assuming a content field for the tweet
+    username: string;
+    idUser: string;
 }

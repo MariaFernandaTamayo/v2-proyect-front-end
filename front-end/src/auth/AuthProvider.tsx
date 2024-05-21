@@ -1,5 +1,5 @@
 import { useContext, createContext, useState, useEffect } from "react";
-import type { AuthResponse, AccesTokenResponse, User } from "../types/types";
+import type { AuthResponse, AccessTokenResponse, User } from "../types/types";
 import { API_URL } from "./constants";
 
 interface AuthProviderProps {
@@ -33,12 +33,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
         },
       });
       if (response.ok) {
-        const json = (await response.json()) as AccesTokenResponse;
-
+        const json = (await response.json()) as AccessTokenResponse;
+  
         if (json.error) {
           throw new Error(json.error);
         }
-        return json.body.accessToken;
+        return json.accessToken;
       } else {
         throw new Error(response.statusText);
       }
@@ -92,7 +92,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     refreshToken: string
   ) {
     setAccessToken(accessToken);
-    localStorage.setItem("token", JSON.stringify(refreshToken));
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken); // Guardar el refreshToken en el almacenamiento local
     setIsAuthenticated(true);
     setUser(userInfo);
   }
@@ -101,14 +102,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return accessToken;
   }
   function getRefreshToken() {
-    if (!!refreshToken) {
-      return refreshToken;
-    }
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("refreshToken");
     if (token) {
-      const refreshToken  = JSON.parse(token);
-      setRefreshToken(refreshToken);
-      return refreshToken;
+      setRefreshToken(token); // Establece el refreshToken en el estado si está presente en el almacenamiento local
+      return token;
     }
     return null;
   }
