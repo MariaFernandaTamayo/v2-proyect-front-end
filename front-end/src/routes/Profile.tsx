@@ -4,9 +4,17 @@ import { useAuth } from "../auth/AuthProvider";
 import { API_URL } from "../auth/constants";
 import icon from '../icon.png'; // Importamos la imagen
 
+interface Tweet {
+  _id: string;
+  title: string;
+  submit: boolean;
+}
+
 export default function Profile() {
   const [profileData, setProfileData] = useState<any>(null);
-  const [userTweets, setUserTweets] = useState<any[]>([]);
+  const [userTweets, setUserTweets] = useState<Tweet[]>([]);
+  const [editingTweet, setEditingTweet] = useState<Tweet | null>(null);
+  const [editTitle, setEditTitle] = useState("");
   const auth = useAuth();
 
   useEffect(() => {
@@ -52,6 +60,61 @@ export default function Profile() {
     } catch (error) {
       console.error("Error al cargar los tweets del usuario", error);
     }
+  }
+
+  async function handleDeleteTweet(id: string) {
+    try {
+      const response = await fetch(`${API_URL}/todos/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${auth.getAccessToken()}`,
+        },
+      });
+
+      if (response.ok) {
+        setUserTweets(userTweets.filter((tweet) => tweet._id !== id));
+      } else {
+        console.error("Error al eliminar el tweet");
+      }
+    } catch (error) {
+      console.error("Error al eliminar el tweet", error);
+    }
+  }
+
+  async function handleUpdateTweet() {
+    if (editingTweet) {
+      try {
+        const response = await fetch(`${API_URL}/todos/${editingTweet._id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${auth.getAccessToken()}`,
+          },
+          body: JSON.stringify({ title: editTitle, submit: editingTweet.submit }),
+        });
+
+        if (response.ok) {
+          const updatedTweet = await response.json();
+          setUserTweets(userTweets.map((tweet) => (tweet._id === updatedTweet._id ? updatedTweet : tweet)));
+          setEditingTweet(null);
+          setEditTitle("");
+        } else {
+          console.error("Error al actualizar el tweet");
+        }
+      } catch (error) {
+        console.error("Error al actualizar el tweet", error);
+      }
+    }
+  }
+
+  function openEditModal(tweet: Tweet) {
+    setEditingTweet(tweet);
+    setEditTitle(tweet.title);
+  }
+
+  function closeEditModal() {
+    setEditingTweet(null);
+    setEditTitle("");
   }
 
   return (
@@ -103,6 +166,20 @@ export default function Profile() {
               {userTweets.map((tweet) => (
                 <li key={tweet._id} className="p-4 border border-gray-700 rounded-lg bg-gray-700 shadow-sm">
                   <p className="text-lg font-semibold text-center">{tweet.title}</p>
+                  <div className="mt-4 flex justify-center space-x-2">
+                    <button
+                      onClick={() => handleDeleteTweet(tweet._id)}
+                      className="bg-red-600 text-white py-1 px-2 text-sm rounded-lg hover:bg-red-700 transition duration-200"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={() => openEditModal(tweet)}
+                      className="bg-blue-600 text-white py-1 px-2 text-sm rounded-lg hover:bg-blue-700 transition duration-200"
+                    >
+                      Update
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -111,6 +188,34 @@ export default function Profile() {
           )}
         </div>
       </div>
+      {editingTweet && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md mx-auto">
+            <h2 className="text-2xl font-semibold mb-4">Edit Tweet</h2>
+            <textarea
+              className="w-full p-4 border border-gray-700 bg-gray-900 text-white rounded-lg mb-4 focus:ring-2 focus:ring-purple-600 focus:outline-none"
+              rows={4}
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              placeholder="Edit tweet..."
+            />
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={closeEditModal}
+                className="bg-red-600 text-white py-1 px-2 text-sm rounded-lg hover:bg-red-700 transition duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdateTweet}
+                className="bg-blue-600 text-white py-1 px-2 text-sm rounded-lg hover:bg-blue-700 transition duration-200"
+              >
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
