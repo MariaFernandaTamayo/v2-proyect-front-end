@@ -12,7 +12,7 @@ interface Todo {
   };
 }
 
-export default function Home() {
+export default function Search() {
   const [searchId, setSearchId] = useState("");
   const [searchResult, setSearchResult] = useState<Todo | null>(null);
   const auth = useAuth();
@@ -71,7 +71,7 @@ export default function Home() {
         <form onSubmit={handleSearchById} className="mb-4">
           <input
             type="text"
-            className="w-full p-2 border border-gray-700 bg-gray-800 text-white rounded-lg mb-2"
+            className="w-full p-2 border border-gray-700 bg-gray-800 text-white rounded-lg mb-2 shadow-md focus:outline-none focus:ring-2 focus:ring-purple-600"
             value={searchId}
             onChange={(e) => setSearchId(e.target.value)}
             placeholder="Search tweet by ID"
@@ -79,7 +79,7 @@ export default function Home() {
           />
           <button
             type="submit"
-            className="bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700"
+            className="bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 shadow-md"
           >
             Search
           </button>
@@ -87,7 +87,7 @@ export default function Home() {
         {searchResult && (
           <div className="bg-gray-800 p-4 rounded-lg shadow-lg mb-4">
             <h2 className="text-xl font-semibold mb-2">{searchResult.title}</h2>
-            <p className="text-gray-400 mb-2">Created by: {auth.getUser()?.username || ""}</p>
+            <p className="text-gray-400 mb-2">Created by: {searchResult.user.username || ""}</p>
           </div>
         )}
       </div>

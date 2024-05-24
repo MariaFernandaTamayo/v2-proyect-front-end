@@ -123,8 +123,8 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc text-white">
-      <nav className="bg-purple-600 p-4">
+    <div className="min-h-screen bg-gray-900 text-white">
+      <nav className="bg-purple-600 p-4 shadow-lg">
         <ul className="flex justify-around">
           <li>
             <Link to="/home" className="hover:text-gray-300">
@@ -149,68 +149,72 @@ export default function Home() {
         </ul>
       </nav>
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">
+        <h1 className="text-3xl font-bold mb-4 text-purple-600 text-center">
           Home de {auth.getUser()?.username || ""}
         </h1>
-        <form onSubmit={handleCreateTodo} className="mb-4">
-          <textarea
-            className="w-full p-2 border border-gray-700 bg-gray-800 text-white rounded-lg mb-2"
-            rows={4}
-            value={newTodo}
-            onChange={(e) => setNewTodo(e.target.value)}
-            placeholder="New task to do..."
-            required
-          />
-          <button
-            type="submit"
-            className="bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700"
-          >
-            Add Todo
-          </button>
-        </form>
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold mb-2">My Todos</h2>
-          {todos.map((todo) => (
-            <div key={todo._id} className="p-2 border-b border-gray-700">
-              <div>{todo.title}</div>
-              <div>
-                <button
-                  onClick={() => handleDeleteTodo(todo._id)}
-                  className="bg-red-600 text-white py-1 px-2 rounded hover:bg-red-700 mr-2"
-                >
-                  Delete
-                </button>
-                <button
-                  onClick={() => openEditModal(todo)}
-                  className="bg-blue-600 text-white py-1 px-2 rounded hover:bg-blue-700"
-                >
-                  Update
-                </button>
-              </div>
+        <div className="max-w-2xl mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
+          <form onSubmit={handleCreateTodo} className="mb-4">
+            <textarea
+              className="w-full p-4 border border-gray-700 bg-gray-700 text-white rounded-lg mb-2 focus:ring-2 focus:ring-purple-600 focus:outline-none shadow-md transition duration-200"
+              rows={4}
+              value={newTodo}
+              onChange={(e) => setNewTodo(e.target.value)}
+              placeholder="What's on your mind today?"
+              required
+            />
+            <div className="flex justify-center">
+              <button
+                type="submit"
+                className="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition duration-200"
+              >
+                Post Tweet
+              </button>
             </div>
-          ))}
+          </form>
+          <div className="space-y-4">
+            <h2 className="text-3xl font-bold mb-4 text-purple-600 text-center ">My Tweets</h2>
+            {todos.map((todo) => (
+              <div key={todo._id} className="p-4 bg-gray-700 rounded-lg shadow-md">
+                <div className="text-lg text-center mb-4">{todo.title}</div>
+                <div className="mt-4 flex justify-center space-x-2">
+                  <button
+                    onClick={() => handleDeleteTodo(todo._id)}
+                    className="bg-red-600 text-white py-1 px-2 text-sm rounded-lg hover:bg-red-700 transition duration-200"
+                  >
+                    Delete
+                  </button>
+                  <button
+                    onClick={() => openEditModal(todo)}
+                    className="bg-blue-600 text-white py-1 px-2 text-sm rounded-lg hover:bg-blue-700 transition duration-200"
+                  >
+                    Update
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
         {editingTodo && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-gray-800 p-4 rounded">
-              <h2 className="text-xl font-semibold mb-4">Edit Todo</h2>
+            <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md mx-auto">
+              <h2 className="text-2xl font-semibold mb-4">Edit Todo</h2>
               <textarea
-                className="w-full p-2 border border-gray-700 bg-gray-800 text-white rounded-lg mb-4"
+                className="w-full p-4 border border-gray-700 bg-gray-900 text-white rounded-lg mb-4 focus:ring-2 focus:ring-purple-600 focus:outline-none"
                 rows={4}
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
                 placeholder="Edit task..."
               />
-              <div className="flex justify-end">
+              <div className="flex justify-end space-x-2">
                 <button
                   onClick={closeEditModal}
-                  className="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 mr-2"
+                  className="bg-red-600 text-white py-1 px-2 text-sm rounded-lg hover:bg-red-700 transition duration-200"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleUpdateTodo}
-                  className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"
+                  className="bg-blue-600 text-white py-1 px-2 text-sm rounded-lg hover:bg-blue-700 transition duration-200"
                 >
                   Update
                 </button>
