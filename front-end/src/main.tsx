@@ -9,6 +9,7 @@ import ProtectedRoute from './routes/ProtectedRoute.tsx'
 import { AuthProvider } from './auth/AuthProvider.tsx'
 import Search from './routes/Search.tsx';
 import Profile from './routes/Profile.tsx';
+import { Navigate } from 'react-router-dom';
 
 const router = createBrowserRouter([
   {
@@ -31,7 +32,11 @@ const router = createBrowserRouter([
       {
         path:"/profile",
         element: <Profile/>
-      }
+      },
+      {
+        path: "*",
+        element: <Navigate to="/" />,
+      },
     ]
   }
 

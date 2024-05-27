@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
 import { API_URL } from "../auth/constants";
@@ -12,16 +12,26 @@ interface Todo {
   };
 }
 
-export default function Search() {
+const Search: React.FC = () => {
   const [searchId, setSearchId] = useState("");
   const [searchResult, setSearchResult] = useState<Todo | null>(null);
+  const [loading, setLoading] = useState(false);
   const auth = useAuth();
 
-  async function handleSearchById(event: React.FormEvent) {
+  const handleSearch = async (event: React.FormEvent) => {
     event.preventDefault();
+    setLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/todos/${searchId}`, {
+      let url = `${API_URL}/todos/`;
+      if (searchId.startsWith("@")) {
+        const username = searchId.substring(1);
+        url += `user/${username}`;
+      } else {
+        url += searchId;
+      }
+
+      const response = await fetch(url, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${auth.getAccessToken()}`,
@@ -38,11 +48,13 @@ export default function Search() {
     } catch (error) {
       setSearchResult(null);
       console.error("Error al buscar el tweet", error);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-zinc-900 text-white">
+    <div className="min-h-screen bg-gray-900 text-white">
       <nav className="bg-purple-600 p-4">
         <ul className="flex justify-around">
           <li>
@@ -67,30 +79,35 @@ export default function Search() {
           </li>
         </ul>
       </nav>
-      <div className="container mx-auto p-4">
-        <form onSubmit={handleSearchById} className="mb-4">
+      <div className="container mx-auto p-4 max-w-md">
+        <form onSubmit={handleSearch} className="mb-4 flex items-center">
           <input
             type="text"
-            className="w-full p-2 border border-gray-700 bg-gray-800 text-white rounded-lg mb-2 shadow-md focus:outline-none focus:ring-2 focus:ring-purple-600"
+            className="flex-1 py-2 px-4 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-600 bg-gray-800 text-white"
             value={searchId}
             onChange={(e) => setSearchId(e.target.value)}
-            placeholder="Search tweet by ID"
+            placeholder="Search tweet by ID or keyword"
             required
           />
           <button
             type="submit"
-            className="bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 shadow-md"
+            className={`bg-purple-600 text-white py-2 px-4 rounded-r-lg ${
+              loading ? "opacity-50 cursor-not-allowed" : "hover:bg-purple-700"
+            }`}
+            disabled={loading}
           >
-            Search
+            {loading ? "Searching..." : "Search"}
           </button>
         </form>
         {searchResult && (
           <div className="bg-gray-800 p-4 rounded-lg shadow-lg mb-4">
             <h2 className="text-xl font-semibold mb-2">{searchResult.title}</h2>
-            <p className="text-gray-400 mb-2">Created by: {searchResult.user.username || ""}</p>
+            <p className="text-gray-400 mb-2">Created by: {auth.getUser()?.username || ""}</p>
           </div>
         )}
       </div>
     </div>
   );
-}
+};
+
+export default Search;
